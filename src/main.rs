@@ -12,7 +12,7 @@ fn main() {
     // }
 
     match read_lines("./input/day2.txt") {
-        Ok(mut buf) => println!("{}", day2::day2_part1(&mut buf)),
+        Ok(mut buf) => println!("{}", day2::day2_part2(&mut buf)),
         Err(err) => println!("open file: {}", err),
     }
 }

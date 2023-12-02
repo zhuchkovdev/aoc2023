@@ -2,12 +2,6 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 
-enum Subset {
-    Red(u32),
-    Green(u32),
-    Blue(u32),
-}
-
 trait AppendWith<T> {
     fn append(&self, value: T) -> Self;
 }
@@ -18,17 +12,42 @@ impl AppendWith<u32> for u32 {
     }
 }
 
+struct Sample {
+    red: u32,
+    green: u32,
+    blue: u32,
+}
+
+impl Sample {
+    fn new() -> Self {
+        Sample {
+            red: 0,
+            green: 0,
+            blue: 0,
+        }
+    }
+
+    fn is_possible(&self, max: &Sample) -> bool {
+        self.red <= max.red && self.green <= max.green && self.blue <= max.blue
+    }
+
+    fn power(&self) -> u32 {
+        self.red * self.green * self.blue
+    }
+}
+
 struct Game {
     id: u32,
-    subsets: Vec<Subset>,
+    samples: Vec<Sample>,
 }
 
 impl Game {
     fn parse(s: String) -> Result<Game, &'static str> {
         let mut game_id: u32 = 0;
-        let mut subsets: Vec<Subset> = Vec::new();
+        let mut samples: Vec<Sample> = Vec::new();
 
         let mut current_num: u32 = 0;
+        let mut current_sample: Sample = Sample::new();
         for c in s.strip_prefix("Game ").unwrap().chars() {
             match c {
                 digit if c.is_digit(10) => {
@@ -38,13 +57,19 @@ impl Game {
                     game_id = current_num;
                     current_num = 0;
                 }
+                ';' => {
+                    samples.push(current_sample);
+                    current_sample = Sample::new();
+                }
                 'r' | 'g' | 'b' => {
-                    if current_num == 0 {continue};
+                    if current_num == 0 {
+                        continue;
+                    };
                     match c {
-                        'r' => subsets.push(Subset::Red(current_num)),
-                        'g' => subsets.push(Subset::Green(current_num)),
-                        'b' => subsets.push(Subset::Blue(current_num)),
-                        _ => {},
+                        'r' => current_sample.red = current_num,
+                        'g' => current_sample.green = current_num,
+                        'b' => current_sample.blue = current_num,
+                        _ => {}
                     }
                     current_num = 0;
                 }
@@ -52,34 +77,65 @@ impl Game {
             }
         }
 
-        Ok(Game{ id: game_id, subsets })
+        samples.push(current_sample);
+
+        Ok(Game {
+            id: game_id,
+            samples,
+        })
     }
 
-    fn is_possible(&self, max_rgb: [u32; 3]) -> bool {
-        for subset in &self.subsets {
-            let bigger = match subset {
-                Subset::Red(val) => *val > max_rgb[0],
-                Subset::Green(val) => *val > max_rgb[1],
-                Subset::Blue(val) => *val > max_rgb[2],
-            };
-
-            if bigger {
+    fn is_possible(&self, max: &Sample) -> bool {
+        for sample in self.samples.iter() {
+            if !sample.is_possible(max) {
                 return false;
             }
-        };
+        }
 
-        return true;
+        true
+    }
+
+    fn min_possible_sample(&self) -> Option<Sample> {
+        let mut min = Sample::new();
+
+        for next in self.samples.iter() {
+            min.red = u32::max(min.red, next.red);
+            min.green = u32::max(min.green, next.green);
+            min.blue = u32::max(min.blue, next.blue);
+        }
+
+        Some(min)
     }
 }
 
 pub fn day2_part1(file: &mut io::BufReader<File>) -> u32 {
     let mut res: u32 = 0;
+    let mut possible_games: Vec<u32> = Vec::new();
 
     for line in file.lines() {
         let game = Game::parse(line.unwrap()).unwrap();
-        if game.is_possible([12, 13, 14]) {
-            res += game.id
+        if game.is_possible(&Sample {
+            red: 12,
+            green: 13,
+            blue: 14,
+        }) {
+            res += game.id;
+            possible_games.push(game.id);
         }
+    }
+
+    println!("possible games: {:?}", possible_games);
+
+    res
+}
+
+pub fn day2_part2(file: &mut io::BufReader<File>) -> u32 {
+    let mut res: u32 = 0;
+
+    for line in file.lines() {
+        let game = Game::parse(line.unwrap()).unwrap();
+        let min_sample = game.min_possible_sample().unwrap();
+        res += min_sample.power();
     }
 
     res
