@@ -13,11 +13,11 @@ pub fn day4_part1(file: &mut io::BufReader<File>) -> Result<u32, Box<dyn std::er
         for (_, [winning, got]) in re.captures_iter(line?.as_str()).map(|c| c.extract()) {
             let winning: HashSet<u32> = winning
                 .split_whitespace()
-                .map(|s| u32::from_str(s).unwrap())
+                .filter_map(|s| u32::from_str(s).ok())
                 .collect();
             let got: HashSet<u32> = got
                 .split_whitespace()
-                .map(|s| u32::from_str(s).unwrap())
+                .filter_map(|s| u32::from_str(s).ok())
                 .collect();
 
             let matches = winning.intersection(&got).count() as u32;
@@ -41,11 +41,11 @@ pub fn day4_part2(file: &mut io::BufReader<File>) -> Result<u32, Box<dyn std::er
             let card_index = u32::from_str(index)?;
             let winning: HashSet<u32> = winning
                 .split_whitespace()
-                .map(|s| u32::from_str(s).unwrap())
+                .filter_map(|s| u32::from_str(s).ok())
                 .collect();
             let got: HashSet<u32> = got
                 .split_whitespace()
-                .map(|s| u32::from_str(s).unwrap())
+                .filter_map(|s| u32::from_str(s).ok())
                 .collect();
 
             let matches = winning.intersection(&got).count() as u32;
