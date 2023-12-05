@@ -1,4 +1,4 @@
-mod day4;
+mod day5;
 
 use std::fs::File;
 use std::io::{self};
@@ -20,8 +20,13 @@ fn main() {
     //     Err(err) => println!("open file: {}", err),
     // }
 
-    match read_lines("./input/day4.txt") {
-        Ok(mut buf) => println!("{:?}", day4::day4_part2(&mut buf)),
+    // match read_lines("./input/day4.txt") {
+    //     Ok(mut buf) => println!("{:?}", day4::day4_part2(&mut buf)),
+    //     Err(err) => println!("open file: {}", err),
+    // }
+
+    match read_lines("./input/day5.txt") {
+        Ok(mut buf) => println!("{:?}", day5::solve_part1(&mut buf)),
         Err(err) => println!("open file: {}", err),
     }
 }
