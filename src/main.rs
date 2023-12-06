@@ -26,7 +26,7 @@ fn main() {
     // }
 
     match read_lines("./input/day5.txt") {
-        Ok(mut buf) => println!("{:?}", day5::solve_part1(&mut buf)),
+        Ok(mut buf) => println!("{:?}", day5::solve_part2(&mut buf)),
         Err(err) => println!("open file: {}", err),
     }
 }
